@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" href="./favicon.png" />
+        <link rel="stylesheet" href="./style.css" />
+        <title>Diagrama de dispersión D3</title>
+    </head>
+    <body>
+        <!--Import D3 library-->
+        <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+        <!--FreeCodeCamp Test-->
+        <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
+        <!--App scatter plot D3-->
+        <div id="app"></div>
+        <script>
+        //SOLICITUD API
+            const getDatos = async() => {
+              const url = "https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/cyclist-data.json";
+              const res = await fetch( url );
+              const datos = await res.json();
+               return  new Promise(( resolve, reject ) => {
+                resolve( datos );
+              })
+            };
+        //TITULOS
+            d3.select( "#app" )
+            .append( "h2" )
+            .text( "Diagrama de dispersión" )
+            .attr( "id", "title" )
+            .style( "text-align", "center" );
+
+            d3.select("#app")
+            .append("h4")
+            .text("Datos de dopaje en ciclistas profesionales")
+            .attr("id", "subtitle1")
+            .style("text-align", "center");
+
+            d3.select("#app")
+            .append("h4")
+            .text("35 tiempos más rápidos en Alpe d'Huez")
+            .attr("id", "subtitle2")
+            .style("text-align", "center");
+        //SVG
+            const w = 1200;
+            const h = 525;
+            const padding = 60;
+
+            const svg = d3.select( "#app" )
+            .append( "svg" )
+            .attr("id", "svg")
+            .attr( "width", w )
+            .attr( "height", h );
+        //Tootip
+            const tooltip = d3.select("body")
+              .append("div")
+              .attr("id", "tooltip")
+              //.style("top", "5px")
+              .style("position", "absolute");
+        //Llamada al dataset (API)
+            getDatos().then( ( datos ) => {
+        //Escalas
+            const xScale = d3.scaleTime()
+              .domain([ d3.min( datos, ( d ) =>  d.Year ) - 1, 
+                d3.max( datos, ( d ) =>  d.Year ) + 1 ])
+              .range([ padding, w - padding ]);
+
+            const yScale = d3.scaleTime()
+              .domain([ d3.max( datos, ( d ) => new Date( d.Seconds * 1000 ) ),
+                d3.min( datos, ( d ) =>  new Date( d.Seconds * 1000 ) ) ])
+              .range([ h - padding, padding ]);
+        //Conversor de milisegundos a mm:ss
+            function mmssConvert( milisegs ){
+              const agregaCero = val => {
+	              if ( val < 10 ) {
+		              return "0" + val;
+	              } else {
+		              return "" + val;
+	              }
+              };
+	            const minutos = parseInt( milisegs / 1000 / 60);
+	            const segundos = (milisegs - minutos * 60 * 1000) / 1000 ;
+	            return `${ agregaCero( minutos ) }:${ agregaCero( segundos ) }`;
+            };
+            console.log(new Date(datos[1].Seconds));
+        //AXIS
+            const xAxis = d3.axisBottom( xScale )
+              .tickFormat(d3.format('d'));
+
+            const yAxis = d3.axisLeft( yScale )
+              .tickFormat( d3.timeFormat( '%M:%S' ) );
+              
+            svg.append( "g" )
+            .attr( "id", "x-axis" )
+            .attr( "transform", "translate(0, " + (h - padding) + ")" )
+            .call( xAxis );
+
+            svg.append( "g" )
+            .attr( "id", "y-axis" )
+            .attr( "transform", "translate(" + padding + ",0)" )
+            .call( yAxis );
+        //Circulos
+            svg.selectAll( "circle" )
+            .data( datos )
+            .enter()
+            .append( "circle" )
+            .attr( "class", "dot" )
+            .attr("data-xvalue", d => d.Year )
+            .attr("data-yvalue", d => new Date( d.Seconds * 1000 ) )
+            .attr( "cx", d => xScale( d.Year ) )
+            .attr( "cy", d =>  yScale( d.Seconds * 1000) )
+            .attr( "r", d => 5)
+            .style("fill", d => d.Doping != "" ? "rgb(250, 144, 24)" : "rgb(38, 199, 164)")
+            .on('mouseover',( m, d ) => { 
+                tooltip.transition()
+                .style("visibility", "visible")
+                .attr("data-year", String( d.Year ))
+                .style("opacity", "0.9")
+                .style("left", xScale( d.Year ) + "px" )
+                .style("top", yScale( d.Seconds * 1000 ) + "px")
+                if(d.Doping != ""){ 
+                  tooltip.text( d.Name + " - " + d.Year + " - " + "Time: " + d.Time + " - " + d.Doping )
+                } else { tooltip.text( d.Name + " - " + d.Year + " - " + "Time: " + d.Time ) } 
+                
+              })
+              .on('mouseout', () => tooltip.transition()
+              .style("visibility", "hidden")
+              .style("opacity", 0));
+          });
+        </script>
+        <div id="legend">
+          <div class="cubo1">Acusado de dopaje</div>
+          <div class="cubo2">No acusado de dopaje</div>
+        </div>
+        <footer>by 
+          <a href="https://github.com/axelpelcode" rel="noreferrer" target="_blank">Axelpelcode</a>
+      </footer>
+    </body>
+</html>

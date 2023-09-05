@@ -1,0 +1,61 @@
+body{
+    background-color: rgb(251, 239, 225);
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+#app{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+#title, #subtitle1, #subtitle2{
+    color:rgb(62, 11, 11);
+    margin:0;
+    padding:0;
+}
+#svg{
+    background-color:rgb(255, 255, 255);
+    box-shadow: 1px 1px 5px 1px rgb(157, 122, 122);
+    margin-top:20px;
+}
+.dot{
+    stroke: rgb(0, 0, 0);
+    opacity: 0.8;
+}
+#legend{
+    background-color: rgb(244, 241, 241);
+    color:rgb(0, 0, 0);
+    position:absolute;
+    top:100px;
+    left:1100px;
+    opacity: 0.8;
+}
+.cubo1, .cubo2{
+    width:5;
+    height:5;
+    margin:0;
+    padding:1px;
+    text-align: center;
+}
+.cubo1{
+    background-color: rgb(250, 144, 24);
+    border-bottom: 1px solid black;
+}
+.cubo2{
+    background-color: rgb(38, 199, 164);
+}
+#tooltip{
+    position: absolute;
+    width: auto;
+    height: auto;
+    border:1px solid black;
+    background-color:ghostwhite;
+}
+footer{
+ margin-top:10px;
+ font-size: 12px;
+ color:rgb(62, 11, 11);
+}
